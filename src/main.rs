@@ -1,3 +1,4 @@
+use std::env;
 use actix_web::{App, HttpServer, web};
 mod config;
 mod controller;
@@ -8,6 +9,9 @@ mod schema;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let pool = config::init_pool();
+    let host = env::var("HOST").expect("HOST must be set");
+    let port = env::var("PORT").expect("PORT must be set").parse().expect("PORT must be able to parse to a u16");
+
 
     HttpServer::new(move || {
         App::new()
@@ -15,7 +19,7 @@ async fn main() -> std::io::Result<()> {
             .service(controller::register_user_controller)
             .service(controller::login_user_controller)
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind((host, port))?
         .run()
         .await
 }
